@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/rocymp/tserver/app/tcp"
+	"github.com/rocymp/deviceManager/tserver/app/tcp"
 )
 
 func main() {
