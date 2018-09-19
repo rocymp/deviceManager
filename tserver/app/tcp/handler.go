@@ -2,7 +2,6 @@ package tcp
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 
@@ -64,6 +63,7 @@ func (dm *DMHandler) HandleMessage(s *zero.Session, msg *zero.Message) {
 	// 处理设备上报事件
 	if msg.GetCMD() == int32(proto.UpReportMessage) {
 		dis := make([]proto.DeviceInfo, 0)
+		dmap := make(map[string]proto.DeviceInfo, 0)
 		data := msg.GetData()
 
 		err := json.Unmarshal([]byte(data), &dis)
@@ -72,9 +72,18 @@ func (dm *DMHandler) HandleMessage(s *zero.Session, msg *zero.Message) {
 			log.Printf("Unmarshal error %#v\n", err)
 		}
 
-		s.SetSetting("devices", dis)
+		sdmap := s.GetSetting("devices")
+		if sdmap != nil {
+			dmap = *sdmap.(*map[string]proto.DeviceInfo)
+		}
 
-		fmt.Printf("[Device Report] devices:[%#v]\n", dis)
+		for _, d := range dis {
+			dmap[d.Udid] = d
+		}
+
+		s.SetSetting("devices", &dmap)
+
+		log.Printf("[Device Report] devices:[%#v]\n", dmap)
 	}
 	// log.Printf("[MESSAGE]\tFrom:[%s] CMDID:[%d] DATA:[%s]\n", s.GetConn().GetName(), msg.GetCMD(), string(msg.GetData()))
 }
