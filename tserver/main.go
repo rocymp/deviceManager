@@ -8,8 +8,8 @@ import (
 
 func main() {
 	log.Println("Start Device Manger Service")
-	dm := tcp.InitDMHandler("127.0.0.1:18888", 3)
+	dm := tcp.InitDMHandler("127.0.0.1:8888", 3)
 
-	go dm.Tick()
+	// go dm.Tick()
 	dm.Run()
 }

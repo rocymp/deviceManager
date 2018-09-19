@@ -1,9 +1,12 @@
 package tcp
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/rocymp/atx-server/proto"
 	"github.com/rocymp/zero"
 )
 
@@ -12,15 +15,15 @@ type DMHandler struct {
 	addr string
 }
 
-func InitDMHandler(addr string, interval int) (dm *DMHandler) {
-	ss, err := zero.NewSocketService(addr, interval)
+func InitDMHandler(taddr string, interval int) (dm *DMHandler) {
+	ss, err := zero.NewSocketService(taddr, interval)
 	if err != nil {
 		log.Printf("zero NewSocketService err %#v\n", err)
 		return nil
 	}
 	dm = &DMHandler{
 		ss:   ss,
-		addr: addr,
+		addr: taddr,
 	}
 	//注册服务
 	ss.RegConnectHandler(dm.HandleConnect)
@@ -58,7 +61,22 @@ func (dm *DMHandler) GetServer() *zero.SocketService {
 }
 
 func (dm *DMHandler) HandleMessage(s *zero.Session, msg *zero.Message) {
-	log.Printf("[MESSAGE]\tFrom:[%s] CMDID:[%d] DATA:[%s]\n", s.GetConn().GetName(), msg.GetCMD(), string(msg.GetData()))
+	// 处理设备上报事件
+	if msg.GetCMD() == int32(proto.UpReportMessage) {
+		dis := make([]proto.DeviceInfo, 0)
+		data := msg.GetData()
+
+		err := json.Unmarshal([]byte(data), &dis)
+
+		if err != nil {
+			log.Printf("Unmarshal error %#v\n", err)
+		}
+
+		s.SetSetting("devices", dis)
+
+		fmt.Printf("[Device Report] devices:[%#v]\n", dis)
+	}
+	// log.Printf("[MESSAGE]\tFrom:[%s] CMDID:[%d] DATA:[%s]\n", s.GetConn().GetName(), msg.GetCMD(), string(msg.GetData()))
 }
 
 func (dm *DMHandler) HandleDisconnect(s *zero.Session, err error) {
