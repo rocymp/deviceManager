@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/rocymp/atx-server/proto"
+	"github.com/rocymp/deviceManager/tserver/app/common"
 	"github.com/rocymp/zero"
 )
 
@@ -72,7 +73,7 @@ func (dm *DMHandler) HandleMessage(s *zero.Session, msg *zero.Message) {
 			log.Printf("Unmarshal error %#v\n", err)
 		}
 
-		sdmap := s.GetSetting("devices")
+		sdmap := s.GetSetting(common.DEVICEKEY)
 		if sdmap != nil {
 			dmap = *sdmap.(*map[string]proto.DeviceInfo)
 		}
@@ -81,7 +82,7 @@ func (dm *DMHandler) HandleMessage(s *zero.Session, msg *zero.Message) {
 			dmap[d.Udid] = d
 		}
 
-		s.SetSetting("devices", &dmap)
+		s.SetSetting(common.DEVICEKEY, &dmap)
 
 		log.Printf("[Device Report] devices:[%#v]\n", dmap)
 	}
