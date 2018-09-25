@@ -13,6 +13,9 @@ type ResultJson struct {
 }
 
 func JSONE(c echo.Context, msg string, code int, data interface{}) error {
+	if data == nil {
+		data = make([]interface{}, 0)
+	}
 	res := &ResultJson{
 		Code:    code,
 		Message: msg,

@@ -133,5 +133,5 @@ func StopByHost(c echo.Context) error {
 		se.GetConn().SendMessage(msg)
 	}
 
-	return common.JSONE(c, "启动成功", common.StatusOK, nil)
+	return common.JSONE(c, "停止成功", common.StatusOK, nil)
 }
